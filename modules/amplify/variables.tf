@@ -19,6 +19,11 @@ variable "access_token" {
   sensitive   = true
 }
 
+variable "platform" {
+  description = "Amplify platform"
+  type        = string
+}
+
 variable "branch_name" {
   description = "Git branch name"
   type        = string

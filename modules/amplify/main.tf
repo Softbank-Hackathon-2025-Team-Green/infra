@@ -9,6 +9,8 @@ resource "aws_amplify_app" "main" {
   iam_service_role_arn = var.service_role_arn != "" ? var.service_role_arn : null
   compute_role_arn = var.compute_role_arn != "" ? var.compute_role_arn : null
 
+  platform = var.platform
+
   build_spec = var.build_spec != "" ? var.build_spec : <<-EOT
     version: 1
     frontend:

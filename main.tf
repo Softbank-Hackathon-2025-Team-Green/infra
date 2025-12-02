@@ -424,6 +424,7 @@ module "amplify" {
   build_spec     = var.amplify_build_spec
   service_role_arn = module.iam.amplify_service_role_arn
   compute_role_arn = module.iam.amplify_ssr_role_arn
+  platform       = "WEB_COMPUTE"
 
   environment_variables = {
     NEXT_PUBLIC_AWS_REGION        = var.aws_region

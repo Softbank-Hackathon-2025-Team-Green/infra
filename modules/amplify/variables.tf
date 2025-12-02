@@ -38,6 +38,18 @@ variable "build_spec" {
   default     = ""
 }
 
+variable "compute_role_arn" {
+  description = "IAM SSR compute role ARN for Amplify"
+  type        = string
+  default     = ""
+}
+
+variable "environment_variables" {
+  description = "Environment variables for Amplify app"
+  type        = map(string)
+  default     = {}
+}
+
 variable "tags" {
   description = "Tags to apply"
   type        = map(string)

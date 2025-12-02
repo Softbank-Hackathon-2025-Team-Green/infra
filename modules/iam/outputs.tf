@@ -18,6 +18,11 @@ output "ec2_instance_profile_name" {
   value       = aws_iam_instance_profile.ec2_ssm.name
 }
 
+output "amplify_ssr_role_arn" {
+  description = "ARN of the Amplify SSR role"
+  value       = aws_iam_role.amplify_ssr.arn
+}
+
 output "ec2_instance_profile_arn" {
   description = "ARN of the EC2 instance profile for SSM"
   value       = aws_iam_instance_profile.ec2_ssm.arn

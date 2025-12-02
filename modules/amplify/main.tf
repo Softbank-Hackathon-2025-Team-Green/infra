@@ -6,6 +6,8 @@ resource "aws_amplify_app" "main" {
 
   access_token = var.access_token
 
+  compute_role_arn = var.compute_role_arn != "" ? var.compute_role_arn : null
+
   build_spec = var.build_spec != "" ? var.build_spec : <<-EOT
     version: 1
     frontend:
@@ -25,9 +27,12 @@ resource "aws_amplify_app" "main" {
           - node_modules/**/*
   EOT
 
-  environment_variables = {
-    ENV = var.environment
-  }
+  environment_variables = merge(
+    {
+      ENV = var.environment
+    },
+    var.environment_variables
+  )
 
   tags = merge(
     var.tags,

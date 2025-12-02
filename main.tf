@@ -422,6 +422,16 @@ module "amplify" {
   branch_name    = var.amplify_branch_name
   dev_branch_name = var.amplify_dev_branch_name
   build_spec     = var.amplify_build_spec
+  compute_role_arn = module.iam.amplify_ssr_role_arn
+
+  environment_variables = {
+    NEXT_PUBLIC_AWS_REGION        = var.aws_region
+    NEXT_PUBLIC_API_ENDPOINT      = ""
+    DYNAMODB_WORKSPACE_TABLE      = module.dynamodb_workspaces.table_name
+    NEXT_PUBLIC_DYNAMODB_TABLE    = module.dynamodb_functions.table_name
+    NEXT_PUBLIC_S3_BUCKET         = module.s3_production.bucket_id
+    OPENAI_API_KEY                = var.amplify_openai_api_key
+  }
 
   tags = var.tags
 }

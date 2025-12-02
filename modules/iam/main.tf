@@ -249,3 +249,71 @@ resource "aws_iam_instance_profile" "ec2_ssm" {
     }
   )
 }
+
+# ============================================
+# IAM Role for Amplify SSR Computing
+# ============================================
+resource "aws_iam_role" "amplify_ssr" {
+  name = "${var.project_name}-${var.environment}-amplify-ssr-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "amplify.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-amplify-ssr-role"
+    }
+  )
+}
+
+resource "aws_iam_role_policy" "amplify_ssr" {
+  name = "${var.project_name}-${var.environment}-amplify-ssr-policy"
+  role = aws_iam_role.amplify_ssr.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = concat(
+          var.s3_bucket_arns,
+          [for arn in var.s3_bucket_arns : "${arn}/*"]
+        )
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem"
+        ]
+        Resource = concat(
+          var.dynamodb_table_arns,
+          [for arn in var.dynamodb_table_arns : "${arn}/*"]
+        )
+      }
+    ]
+  })
+}

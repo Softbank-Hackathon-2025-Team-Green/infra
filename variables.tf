@@ -231,6 +231,37 @@ variable "amplify_build_spec" {
   default     = ""
 }
 
+variable "amplify_api_endpoint" {
+  description = "API endpoint for Amplify app"
+  type        = string
+  default     = ""
+}
+
+variable "amplify_dynamodb_workspace_table" {
+  description = "DynamoDB workspace table name for Amplify"
+  type        = string
+  default     = ""
+}
+
+variable "amplify_dynamodb_table" {
+  description = "DynamoDB table name for Amplify"
+  type        = string
+  default     = ""
+}
+
+variable "amplify_s3_bucket" {
+  description = "S3 bucket name for Amplify"
+  type        = string
+  default     = ""
+}
+
+variable "amplify_openai_api_key" {
+  description = "OpenAI API key for Amplify"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # ============================================
 # EC2 Compute Configuration
 # ============================================

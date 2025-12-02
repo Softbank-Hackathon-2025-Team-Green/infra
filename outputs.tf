@@ -72,19 +72,19 @@ output "dynamodb_executions_table_arn" {
   value       = module.dynamodb_executions.table_arn
 }
 
-output "dynamodb_logs_table" {
-  description = "Name of the logs DynamoDB table"
-  value       = module.dynamodb_logs.table_name
+output "dynamodb_workspaces_table" {
+  description = "Name of the workspaces DynamoDB table"
+  value       = module.dynamodb_workspaces.table_name
 }
 
-output "dynamodb_logs_table_arn" {
-  description = "ARN of the logs DynamoDB table"
-  value       = module.dynamodb_logs.table_arn
+output "dynamodb_workspaces_table_arn" {
+  description = "ARN of the workspaces DynamoDB table"
+  value       = module.dynamodb_workspaces.table_arn
 }
 
-output "dynamodb_logs_stream_arn" {
-  description = "Stream ARN of the logs DynamoDB table"
-  value       = module.dynamodb_logs.stream_arn
+output "dynamodb_workspaces_stream_arn" {
+  description = "Stream ARN of the workspaces DynamoDB table"
+  value       = module.dynamodb_workspaces.stream_arn
 }
 
 # ============================================

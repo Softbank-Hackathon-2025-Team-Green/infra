@@ -22,8 +22,15 @@ variable "access_token" {
 variable "branch_name" {
   description = "Git branch name"
   type        = string
-  default     = "main"
+  default     = "master"
 }
+
+variable "dev_branch_name" {
+  description = "Git branch name"
+  type        = string
+  default     = "develop"
+}
+
 
 variable "build_spec" {
   description = "Custom build specification"

@@ -178,11 +178,11 @@ module "dynamodb_executions" {
   tags = var.tags
 }
 
-# Logs Table
-module "dynamodb_logs" {
+# Workspaces Table
+module "dynamodb_workspaces" {
   source = "./modules/dynamodb"
 
-  table_name   = "${var.project_name}-${var.environment}-${var.dynamodb_logs_table}"
+  table_name   = "${var.project_name}-${var.environment}-${var.dynamodb_workspaces_table}"
   billing_mode = var.dynamodb_billing_mode
   hash_key     = "execution_id"
   range_key    = "timestamp"
@@ -260,7 +260,7 @@ module "iam" {
   dynamodb_table_arns = [
     module.dynamodb_functions.table_arn,
     module.dynamodb_executions.table_arn,
-    module.dynamodb_logs.table_arn
+    module.dynamodb_workspaces.table_arn
   ]
 
   s3_bucket_arns = [
@@ -355,6 +355,7 @@ module "amplify" {
   repository_url = var.amplify_repository_url
   access_token   = var.amplify_access_token
   branch_name    = var.amplify_branch_name
+  dev_branch_name = var.amplify_dev_branch_name
   build_spec     = var.amplify_build_spec
 
   tags = var.tags

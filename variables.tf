@@ -89,8 +89,8 @@ variable "dynamodb_execution_table" {
   default     = "faas-executions"
 }
 
-variable "dynamodb_logs_table" {
-  description = "Name of the DynamoDB table for logs"
+variable "dynamodb_workspaces_table" {
+  description = "Name of the DynamoDB table for users' workspaces"
   type        = string
   default     = "faas-logs"
 }
@@ -216,7 +216,13 @@ variable "amplify_access_token" {
 variable "amplify_branch_name" {
   description = "Git branch name for Amplify deployment"
   type        = string
-  default     = "main"
+  default     = "master"
+}
+
+variable "amplify_dev_branch_name" {
+  description = "Git branch name for Amplify development"
+  type        = string
+  default     = "develop"
 }
 
 variable "amplify_build_spec" {

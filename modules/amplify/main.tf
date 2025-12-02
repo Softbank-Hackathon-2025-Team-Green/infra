@@ -37,7 +37,7 @@ resource "aws_amplify_app" "main" {
   )
 }
 
-resource "aws_amplify_branch" "main" {
+resource "aws_amplify_branch" "master" {
   count = var.repository_url != "" ? 1 : 0
 
   app_id      = aws_amplify_app.main[0].id
@@ -47,3 +47,15 @@ resource "aws_amplify_branch" "main" {
 
   tags = var.tags
 }
+
+resource "aws_amplify_branch" "develop" {
+  count = var.repository_url != "" ? 1 : 0
+
+  app_id      = aws_amplify_app.main[0].id
+  branch_name = var.dev_branch_name
+
+  enable_auto_build = true
+
+  tags = var.tags
+}
+

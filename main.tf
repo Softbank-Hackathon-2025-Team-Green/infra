@@ -422,6 +422,7 @@ module "amplify" {
   branch_name    = var.amplify_branch_name
   dev_branch_name = var.amplify_dev_branch_name
   build_spec     = var.amplify_build_spec
+  service_role_arn = module.iam.amplify_service_role_arn
   compute_role_arn = module.iam.amplify_ssr_role_arn
 
   environment_variables = {

@@ -44,6 +44,12 @@ variable "compute_role_arn" {
   default     = ""
 }
 
+variable "service_role_arn" {
+  description = "IAM service role ARN for Amplify"
+  type        = string
+  default     = ""
+}
+
 variable "environment_variables" {
   description = "Environment variables for Amplify app"
   type        = map(string)

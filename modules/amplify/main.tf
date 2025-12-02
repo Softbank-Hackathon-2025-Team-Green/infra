@@ -6,6 +6,7 @@ resource "aws_amplify_app" "main" {
 
   access_token = var.access_token
 
+  iam_service_role_arn = var.service_role_arn != "" ? var.service_role_arn : null
   compute_role_arn = var.compute_role_arn != "" ? var.compute_role_arn : null
 
   build_spec = var.build_spec != "" ? var.build_spec : <<-EOT

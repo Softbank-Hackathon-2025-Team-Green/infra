@@ -23,6 +23,11 @@ output "amplify_ssr_role_arn" {
   value       = aws_iam_role.amplify_ssr.arn
 }
 
+output "amplify_service_role_arn" {
+  description = "ARN of the Amplify service role"
+  value       = aws_iam_role.amplify_service.arn
+}
+
 output "ec2_instance_profile_arn" {
   description = "ARN of the EC2 instance profile for SSM"
   value       = aws_iam_instance_profile.ec2_ssm.arn

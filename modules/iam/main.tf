@@ -343,3 +343,63 @@ resource "aws_iam_role_policy" "amplify_ssr" {
     ]
   })
 }
+
+# ============================================
+# IAM Role for Amplify Service (CloudWatch Logs)
+# ============================================
+resource "aws_iam_role" "amplify_service" {
+  name = "${var.project_name}-${var.environment}-amplify-service-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Statement1"
+        Effect = "Allow"
+        Principal = {
+          Service = ["amplify.amazonaws.com"]
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-amplify-service-role"
+    }
+  )
+}
+
+resource "aws_iam_role_policy" "amplify_service" {
+  name = "${var.project_name}-${var.environment}-amplify-service-policy"
+  role = aws_iam_role.amplify_service.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "PushLogs"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/amplify/*:log-stream:*"
+      },
+      {
+        Sid    = "CreateLogGroup"
+        Effect = "Allow"
+        Action = "logs:CreateLogGroup"
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/amplify/*"
+      },
+      {
+        Sid    = "DescribeLogGroups"
+        Effect = "Allow"
+        Action = "logs:DescribeLogGroups"
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:*"
+      }
+    ]
+  })
+}

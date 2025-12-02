@@ -1,29 +1,19 @@
-output "production_bucket_name" {
-  description = "Name of the production S3 bucket"
-  value       = aws_s3_bucket.production.id
+output "bucket_id" {
+  description = "ID of the S3 bucket"
+  value       = aws_s3_bucket.main.id
 }
 
-output "production_bucket_arn" {
-  description = "ARN of the production S3 bucket"
-  value       = aws_s3_bucket.production.arn
+output "bucket_arn" {
+  description = "ARN of the S3 bucket"
+  value       = aws_s3_bucket.main.arn
 }
 
-output "development_bucket_name" {
-  description = "Name of the development S3 bucket"
-  value       = aws_s3_bucket.development.id
+output "bucket_domain_name" {
+  description = "Domain name of the S3 bucket"
+  value       = aws_s3_bucket.main.bucket_domain_name
 }
 
-output "development_bucket_arn" {
-  description = "ARN of the development S3 bucket"
-  value       = aws_s3_bucket.development.arn
-}
-
-output "reserved_bucket_name" {
-  description = "Name of the reserved S3 bucket"
-  value       = aws_s3_bucket.reserved.id
-}
-
-output "reserved_bucket_arn" {
-  description = "ARN of the reserved S3 bucket"
-  value       = aws_s3_bucket.reserved.arn
+output "bucket_regional_domain_name" {
+  description = "Regional domain name of the S3 bucket"
+  value       = aws_s3_bucket.main.bucket_regional_domain_name
 }

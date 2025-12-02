@@ -1,77 +1,45 @@
-# Task Queue
-resource "aws_sqs_queue" "task" {
-  name                       = "${var.project_name}-${var.environment}-${var.task_queue_name}"
-  delay_seconds              = 0
-  max_message_size           = 262144
+# SQS Queue
+resource "aws_sqs_queue" "main" {
+  name                       = var.queue_name
+  delay_seconds              = var.delay_seconds
+  max_message_size           = var.max_message_size
   message_retention_seconds  = var.message_retention_seconds
   visibility_timeout_seconds = var.visibility_timeout_seconds
-  receive_wait_time_seconds  = 10
+  receive_wait_time_seconds  = var.receive_wait_time_seconds
+  fifo_queue                 = var.fifo_queue
+  content_based_deduplication = var.fifo_queue ? var.content_based_deduplication : null
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-task-queue"
+      Name = var.queue_name
     }
   )
 }
 
-# Task Dead Letter Queue
-resource "aws_sqs_queue" "task_dlq" {
-  name                      = "${var.project_name}-${var.environment}-${var.task_queue_name}-dlq"
-  message_retention_seconds = 1209600  # 14 days
+# Dead Letter Queue (optional)
+resource "aws_sqs_queue" "dlq" {
+  count = var.create_dlq ? 1 : 0
+
+  name                      = "${var.queue_name}-dlq"
+  message_retention_seconds = var.dlq_message_retention_seconds
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-task-dlq"
+      Name = "${var.queue_name}-dlq"
     }
   )
 }
 
-resource "aws_sqs_queue_redrive_policy" "task" {
-  queue_url = aws_sqs_queue.task.id
+# Redrive Policy (optional)
+resource "aws_sqs_queue_redrive_policy" "main" {
+  count = var.create_dlq ? 1 : 0
+
+  queue_url = aws_sqs_queue.main.id
 
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.task_dlq.arn
-    maxReceiveCount     = 3
-  })
-}
-
-# Result Queue
-resource "aws_sqs_queue" "result" {
-  name                       = "${var.project_name}-${var.environment}-${var.result_queue_name}"
-  delay_seconds              = 0
-  max_message_size           = 262144
-  message_retention_seconds  = var.message_retention_seconds
-  visibility_timeout_seconds = var.visibility_timeout_seconds
-  receive_wait_time_seconds  = 10
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-result-queue"
-    }
-  )
-}
-
-# Result Dead Letter Queue
-resource "aws_sqs_queue" "result_dlq" {
-  name                      = "${var.project_name}-${var.environment}-${var.result_queue_name}-dlq"
-  message_retention_seconds = 1209600
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-result-dlq"
-    }
-  )
-}
-
-resource "aws_sqs_queue_redrive_policy" "result" {
-  queue_url = aws_sqs_queue.result.id
-
-  redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.result_dlq.arn
-    maxReceiveCount     = 3
+    deadLetterTargetArn = aws_sqs_queue.dlq[0].arn
+    maxReceiveCount     = var.max_receive_count
   })
 }

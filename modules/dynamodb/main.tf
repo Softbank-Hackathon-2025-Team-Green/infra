@@ -1,134 +1,53 @@
-# Function Metadata Table
-resource "aws_dynamodb_table" "functions" {
-  name           = "${var.project_name}-${var.environment}-${var.function_table_name}"
-  billing_mode   = var.billing_mode
-  hash_key       = "function_id"
-  range_key      = "version"
+# DynamoDB Table
+resource "aws_dynamodb_table" "main" {
+  name         = var.table_name
+  billing_mode = var.billing_mode
+  hash_key     = var.hash_key
+  range_key    = var.range_key
 
-  attribute {
-    name = "function_id"
-    type = "S"
-  }
-
-  attribute {
-    name = "version"
-    type = "N"
-  }
-
-  attribute {
-    name = "user_id"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name            = "UserIdIndex"
-    hash_key        = "user_id"
-    range_key       = "function_id"
-    projection_type = "ALL"
-  }
-
-  point_in_time_recovery {
-    enabled = true
-  }
-
-  server_side_encryption {
-    enabled = true
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-functions"
+  dynamic "attribute" {
+    for_each = var.attributes
+    content {
+      name = attribute.value.name
+      type = attribute.value.type
     }
-  )
-}
-
-# Execution Tracking Table
-resource "aws_dynamodb_table" "executions" {
-  name           = "${var.project_name}-${var.environment}-${var.execution_table_name}"
-  billing_mode   = var.billing_mode
-  hash_key       = "execution_id"
-
-  attribute {
-    name = "execution_id"
-    type = "S"
   }
 
-  attribute {
-    name = "function_id"
-    type = "S"
-  }
-
-  attribute {
-    name = "timestamp"
-    type = "N"
-  }
-
-  global_secondary_index {
-    name            = "FunctionIdTimestampIndex"
-    hash_key        = "function_id"
-    range_key       = "timestamp"
-    projection_type = "ALL"
-  }
-
-  ttl {
-    enabled        = true
-    attribute_name = "ttl"
-  }
-
-  point_in_time_recovery {
-    enabled = true
-  }
-
-  server_side_encryption {
-    enabled = true
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-executions"
+  dynamic "global_secondary_index" {
+    for_each = var.global_secondary_indexes
+    content {
+      name            = global_secondary_index.value.name
+      hash_key        = global_secondary_index.value.hash_key
+      range_key       = lookup(global_secondary_index.value, "range_key", null)
+      projection_type = global_secondary_index.value.projection_type
+      read_capacity   = var.billing_mode == "PROVISIONED" ? lookup(global_secondary_index.value, "read_capacity", null) : null
+      write_capacity  = var.billing_mode == "PROVISIONED" ? lookup(global_secondary_index.value, "write_capacity", null) : null
     }
-  )
-}
-
-# Logs Table
-resource "aws_dynamodb_table" "logs" {
-  name           = "${var.project_name}-${var.environment}-${var.logs_table_name}"
-  billing_mode   = var.billing_mode
-  hash_key       = "execution_id"
-  range_key      = "timestamp"
-
-  attribute {
-    name = "execution_id"
-    type = "S"
   }
 
-  attribute {
-    name = "timestamp"
-    type = "N"
-  }
-
-  ttl {
-    enabled        = true
-    attribute_name = "ttl"
+  dynamic "ttl" {
+    for_each = var.ttl_enabled ? [1] : []
+    content {
+      enabled        = true
+      attribute_name = var.ttl_attribute_name
+    }
   }
 
   point_in_time_recovery {
-    enabled = true
+    enabled = var.point_in_time_recovery
   }
 
   server_side_encryption {
-    enabled = true
+    enabled = var.server_side_encryption
   }
 
-  stream_enabled   = true
-  stream_view_type = "NEW_AND_OLD_IMAGES"
+  stream_enabled   = var.stream_enabled
+  stream_view_type = var.stream_enabled ? var.stream_view_type : null
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-logs"
+      Name = var.table_name
     }
   )
 }

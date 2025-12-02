@@ -1,147 +1,85 @@
-# Production Code Bucket
-resource "aws_s3_bucket" "production" {
-  bucket = "${var.project_name}-${var.environment}-code-prod-${var.account_id}"
+# S3 Bucket
+resource "aws_s3_bucket" "main" {
+  bucket        = var.bucket_name
+  force_destroy = var.force_destroy
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-code-prod"
-      Tier = "Production"
+      Name = var.bucket_name
     }
   )
 }
 
-resource "aws_s3_bucket_versioning" "production" {
-  bucket = aws_s3_bucket.production.id
+# Versioning
+resource "aws_s3_bucket_versioning" "main" {
+  count  = var.enable_versioning ? 1 : 0
+  bucket = aws_s3_bucket.main.id
 
   versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Disabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "production" {
-  bucket = aws_s3_bucket.production.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "production" {
-  bucket = aws_s3_bucket.production.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-# Development Code Bucket
-resource "aws_s3_bucket" "development" {
-  bucket = "${var.project_name}-${var.environment}-code-dev-${var.account_id}"
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-code-dev"
-      Tier = "Development"
-    }
-  )
-}
-
-resource "aws_s3_bucket_versioning" "development" {
-  bucket = aws_s3_bucket.development.id
-
-  versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Disabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "development" {
-  bucket = aws_s3_bucket.development.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "development" {
-  bucket = aws_s3_bucket.development.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-# Reserved Bucket
-resource "aws_s3_bucket" "reserved" {
-  bucket = "${var.project_name}-${var.environment}-reserved-${var.account_id}"
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-reserved"
-      Tier = "Reserved"
-    }
-  )
-}
-
-resource "aws_s3_bucket_versioning" "reserved" {
-  bucket = aws_s3_bucket.reserved.id
-
-  versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Disabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "reserved" {
-  bucket = aws_s3_bucket.reserved.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "reserved" {
-  bucket = aws_s3_bucket.reserved.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-# Lifecycle policy for production bucket
-resource "aws_s3_bucket_lifecycle_configuration" "production" {
-  bucket = aws_s3_bucket.production.id
-
-  rule {
-    id     = "archive-old-versions"
     status = "Enabled"
+  }
+}
 
-    filter {
-      prefix = ""
+# Server-Side Encryption
+resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
+  bucket = aws_s3_bucket.main.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = var.kms_key_id != null ? "aws:kms" : "AES256"
+      kms_master_key_id = var.kms_key_id
     }
+    bucket_key_enabled = var.kms_key_id != null ? true : false
+  }
+}
 
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
+# Block Public Access
+resource "aws_s3_bucket_public_access_block" "main" {
+  bucket = aws_s3_bucket.main.id
 
-    transition {
-      days          = var.lifecycle_glacier_days
-      storage_class = "GLACIER"
-    }
+  block_public_acls       = var.block_public_acls
+  block_public_policy     = var.block_public_policy
+  ignore_public_acls      = var.ignore_public_acls
+  restrict_public_buckets = var.restrict_public_buckets
+}
 
-    noncurrent_version_expiration {
-      noncurrent_days = var.lifecycle_glacier_days
+# Lifecycle Configuration
+resource "aws_s3_bucket_lifecycle_configuration" "main" {
+  count  = length(var.lifecycle_rules) > 0 ? 1 : 0
+  bucket = aws_s3_bucket.main.id
+
+  dynamic "rule" {
+    for_each = var.lifecycle_rules
+    content {
+      id     = rule.value.id
+      status = rule.value.enabled ? "Enabled" : "Disabled"
+
+      filter {
+        prefix = lookup(rule.value, "prefix", "")
+      }
+
+      dynamic "transition" {
+        for_each = lookup(rule.value, "transitions", [])
+        content {
+          days          = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = lookup(rule.value, "expiration", null) != null ? [rule.value.expiration] : []
+        content {
+          days = expiration.value.days
+        }
+      }
+
+      dynamic "noncurrent_version_expiration" {
+        for_each = lookup(rule.value, "noncurrent_version_expiration", null) != null ? [rule.value.noncurrent_version_expiration] : []
+        content {
+          noncurrent_days = noncurrent_version_expiration.value.days
+        }
+      }
     }
   }
 }

@@ -54,32 +54,148 @@ module "faas_sg" {
 # ============================================
 # S3 Buckets
 # ============================================
-module "s3" {
+module "s3_production" {
   source = "./modules/s3"
 
-  project_name           = var.project_name
-  environment            = var.environment
-  account_id             = data.aws_caller_identity.current.account_id
-  enable_versioning      = var.enable_s3_versioning
-  lifecycle_glacier_days = var.s3_lifecycle_glacier_days
+  bucket_name       = "${var.project_name}-${var.environment}-code-prod-${data.aws_caller_identity.current.account_id}"
+  enable_versioning = var.enable_s3_versioning
+  force_destroy     = false
 
-  tags = var.tags
+  lifecycle_rules = [
+    {
+      id      = "archive-old-versions"
+      enabled = true
+      transitions = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = var.s3_lifecycle_glacier_days
+          storage_class = "GLACIER"
+        }
+      ]
+      noncurrent_version_expiration = {
+        days = var.s3_lifecycle_glacier_days
+      }
+    }
+  ]
+
+  tags = merge(
+    var.tags,
+    {
+      Tier = "Production"
+    }
+  )
+}
+
+module "s3_development" {
+  source = "./modules/s3"
+
+  bucket_name       = "${var.project_name}-${var.environment}-code-dev-${data.aws_caller_identity.current.account_id}"
+  enable_versioning = var.enable_s3_versioning
+  force_destroy     = false
+
+  tags = merge(
+    var.tags,
+    {
+      Tier = "Development"
+    }
+  )
+}
+
+module "s3_reserved" {
+  source = "./modules/s3"
+
+  bucket_name       = "${var.project_name}-${var.environment}-reserved-${data.aws_caller_identity.current.account_id}"
+  enable_versioning = var.enable_s3_versioning
+  force_destroy     = false
+
+  tags = merge(
+    var.tags,
+    {
+      Tier = "Reserved"
+    }
+  )
 }
 
 # ============================================
 # DynamoDB Tables
 # ============================================
-module "dynamodb" {
+# Functions Table
+module "dynamodb_functions" {
   source = "./modules/dynamodb"
 
-  project_name         = var.project_name
-  environment          = var.environment
-  function_table_name  = var.dynamodb_function_table
-  execution_table_name = var.dynamodb_execution_table
-  logs_table_name      = var.dynamodb_logs_table
-  billing_mode         = var.dynamodb_billing_mode
-  read_capacity        = var.dynamodb_read_capacity
-  write_capacity       = var.dynamodb_write_capacity
+  table_name   = "${var.project_name}-${var.environment}-${var.dynamodb_function_table}"
+  billing_mode = var.dynamodb_billing_mode
+  hash_key     = "function_id"
+  range_key    = "version"
+
+  attributes = [
+    { name = "function_id", type = "S" },
+    { name = "version", type = "N" },
+    { name = "user_id", type = "S" }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "UserIdIndex"
+      hash_key        = "user_id"
+      range_key       = "function_id"
+      projection_type = "ALL"
+    }
+  ]
+
+  tags = var.tags
+}
+
+# Executions Table
+module "dynamodb_executions" {
+  source = "./modules/dynamodb"
+
+  table_name   = "${var.project_name}-${var.environment}-${var.dynamodb_execution_table}"
+  billing_mode = var.dynamodb_billing_mode
+  hash_key     = "execution_id"
+
+  attributes = [
+    { name = "execution_id", type = "S" },
+    { name = "function_id", type = "S" },
+    { name = "timestamp", type = "N" }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = "FunctionIdTimestampIndex"
+      hash_key        = "function_id"
+      range_key       = "timestamp"
+      projection_type = "ALL"
+    }
+  ]
+
+  ttl_enabled        = true
+  ttl_attribute_name = "ttl"
+
+  tags = var.tags
+}
+
+# Logs Table
+module "dynamodb_logs" {
+  source = "./modules/dynamodb"
+
+  table_name   = "${var.project_name}-${var.environment}-${var.dynamodb_logs_table}"
+  billing_mode = var.dynamodb_billing_mode
+  hash_key     = "execution_id"
+  range_key    = "timestamp"
+
+  attributes = [
+    { name = "execution_id", type = "S" },
+    { name = "timestamp", type = "N" }
+  ]
+
+  ttl_enabled        = true
+  ttl_attribute_name = "ttl"
+  stream_enabled     = true
+  stream_view_type   = "NEW_AND_OLD_IMAGES"
 
   tags = var.tags
 }
@@ -87,15 +203,30 @@ module "dynamodb" {
 # ============================================
 # SQS Queues
 # ============================================
-module "sqs" {
+# Task Queue
+module "sqs_task" {
   source = "./modules/sqs"
 
-  project_name               = var.project_name
-  environment                = var.environment
-  task_queue_name            = var.sqs_task_queue_name
-  result_queue_name          = var.sqs_result_queue_name
+  queue_name                 = "${var.project_name}-${var.environment}-${var.sqs_task_queue_name}"
   message_retention_seconds  = var.sqs_message_retention_seconds
   visibility_timeout_seconds = var.sqs_visibility_timeout_seconds
+  receive_wait_time_seconds  = 10
+  create_dlq                 = true
+  max_receive_count          = 3
+
+  tags = var.tags
+}
+
+# Result Queue
+module "sqs_result" {
+  source = "./modules/sqs"
+
+  queue_name                 = "${var.project_name}-${var.environment}-${var.sqs_result_queue_name}"
+  message_retention_seconds  = var.sqs_message_retention_seconds
+  visibility_timeout_seconds = var.sqs_visibility_timeout_seconds
+  receive_wait_time_seconds  = 10
+  create_dlq                 = true
+  max_receive_count          = 3
 
   tags = var.tags
 }
@@ -127,22 +258,22 @@ module "iam" {
   aws_region   = var.aws_region
 
   dynamodb_table_arns = [
-    module.dynamodb.functions_table_arn,
-    module.dynamodb.executions_table_arn,
-    module.dynamodb.logs_table_arn
+    module.dynamodb_functions.table_arn,
+    module.dynamodb_executions.table_arn,
+    module.dynamodb_logs.table_arn
   ]
 
   s3_bucket_arns = [
-    module.s3.production_bucket_arn,
-    module.s3.development_bucket_arn,
-    module.s3.reserved_bucket_arn
+    module.s3_production.bucket_arn,
+    module.s3_development.bucket_arn,
+    module.s3_reserved.bucket_arn
   ]
 
   sqs_queue_arns = [
-    module.sqs.task_queue_arn,
-    module.sqs.result_queue_arn,
-    module.sqs.task_dlq_arn,
-    module.sqs.result_dlq_arn
+    module.sqs_task.queue_arn,
+    module.sqs_result.queue_arn,
+    module.sqs_task.dlq_arn,
+    module.sqs_result.dlq_arn
   ]
 
   ecr_repository_arn = module.ecr.repository_arn
@@ -162,13 +293,13 @@ module "ssm" {
   parameters = {
     task_queue_url = {
       name        = null
-      value       = module.sqs.task_queue_url
+      value       = module.sqs_task.queue_url
       type        = "String"
       description = "SQS task queue URL"
     }
     result_queue_url = {
       name        = null
-      value       = module.sqs.result_queue_url
+      value       = module.sqs_result.queue_url
       type        = "String"
       description = "SQS result queue URL"
     }
@@ -180,13 +311,13 @@ module "ssm" {
     }
     functions_table = {
       name        = null
-      value       = module.dynamodb.functions_table_name
+      value       = module.dynamodb_functions.table_name
       type        = "String"
       description = "DynamoDB functions table name"
     }
     executions_table = {
       name        = null
-      value       = module.dynamodb.executions_table_name
+      value       = module.dynamodb_executions.table_name
       type        = "String"
       description = "DynamoDB executions table name"
     }
@@ -204,7 +335,7 @@ module "codebuild" {
   project_name       = var.project_name
   environment        = var.environment
   codebuild_role_arn = module.iam.codebuild_role_arn
-  s3_bucket_name     = module.s3.production_bucket_name
+  s3_bucket_name     = module.s3_production.bucket_id
   ecr_repository_url = module.ecr.repository_url
   compute_type       = var.codebuild_compute_type
   image              = var.codebuild_image
@@ -244,30 +375,30 @@ module "nlb" {
 }
 
 # ============================================
-# EC2 Compute Instance (Optional - for management/testing)
+# K3s Control Plane Instance (Optional)
 # ============================================
-module "compute" {
+module "k3s_control_plane" {
   count  = var.enable_compute_instance ? 1 : 0
   source = "./modules/ec2"
 
   project_name          = var.project_name
   environment           = var.environment
   vpc_id                = module.vpc.vpc_id
-  subnet_id             = module.vpc.private_subnet_id
+  subnet_id             = module.vpc.public_subnet_id
   security_group_ids    = [module.faas_sg.security_group_id]
   instance_type         = var.compute_instance_type
   iam_instance_profile  = module.iam.ec2_instance_profile_name
   key_name              = var.ec2_key_name
-  enable_public_ip      = false
+  enable_public_ip      = true
   root_volume_size      = 30
 
   tags = var.tags
 }
 
 # ============================================
-# Auto Scaling Group for FaaS Workers
+# K3s Worker Nodes (Auto Scaling Group)
 # ============================================
-module "worker_asg" {
+module "k3s_worker" {
   count  = var.enable_worker_asg ? 1 : 0
   source = "./modules/asg"
 

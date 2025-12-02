@@ -37,6 +37,12 @@ resource "aws_amplify_app" "main" {
     var.environment_variables
   )
 
+  custom_rule {
+    source = "/<*>"
+    status = "404-200"
+    target = "/index.html"
+  }
+
   tags = merge(
     var.tags,
     {

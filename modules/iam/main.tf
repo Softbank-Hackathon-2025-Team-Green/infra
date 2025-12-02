@@ -260,11 +260,12 @@ resource "aws_iam_role" "amplify_ssr" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
+        Sid    = "Statement1"
         Effect = "Allow"
         Principal = {
-          Service = "amplify.amazonaws.com"
+          Service = ["amplify.amazonaws.com"]
         }
+        Action = "sts:AssumeRole"
       }
     ]
   })
@@ -285,6 +286,7 @@ resource "aws_iam_role_policy" "amplify_ssr" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "S3Access"
         Effect = "Allow"
         Action = [
           "s3:GetObject",
@@ -298,6 +300,7 @@ resource "aws_iam_role_policy" "amplify_ssr" {
         )
       },
       {
+        Sid    = "DynamoDBAccess"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",

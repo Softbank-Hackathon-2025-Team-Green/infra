@@ -238,6 +238,29 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# Additional policy for SSM parameter write access
+resource "aws_iam_role_policy" "ec2_ssm_parameters" {
+  name = "${var.project_name}-${var.environment}-ec2-ssm-params-policy"
+  role = aws_iam_role.ec2_ssm.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "SSMParameterAccess"
+        Effect = "Allow"
+        Action = [
+          "ssm:PutParameter",
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:DeleteParameter"
+        ]
+        Resource = "arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter/*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "ec2_ssm" {
   name = "${var.project_name}-${var.environment}-ec2-ssm-profile"
   role = aws_iam_role.ec2_ssm.name

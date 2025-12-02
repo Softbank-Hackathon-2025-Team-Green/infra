@@ -82,6 +82,12 @@ variable "user_data" {
   default     = ""
 }
 
+variable "server_private_ip" {
+  description = "K3s control plane server private IP"
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Tags to apply"
   type        = map(string)

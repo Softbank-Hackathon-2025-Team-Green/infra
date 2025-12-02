@@ -1,7 +1,9 @@
-output "instance_profile_name" {
-  value = aws_iam_instance_profile.ssm_profile.name
+output "parameter_arns" {
+  description = "ARNs of created SSM parameters"
+  value       = { for k, v in aws_ssm_parameter.params : k => v.arn }
 }
 
-output "role_name" {
-  value = aws_iam_role.ssm_role.name
+output "parameter_names" {
+  description = "Names of created SSM parameters"
+  value       = { for k, v in aws_ssm_parameter.params : k => v.name }
 }

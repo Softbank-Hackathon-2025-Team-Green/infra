@@ -1,0 +1,52 @@
+# Copy this file to terraform.tfvars and update with your values
+
+# Project Configuration
+project_name = "faas-platform"
+environment  = "dev"
+aws_region   = "ap-northeast-2"
+
+# Network Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zone  = "ap-northeast-2a"
+public_subnet_cidr = "10.0.1.0/24"
+private_subnet_cidr = "10.0.2.0/24"
+
+# Enable/Disable Features
+enable_nat_gateway   = true
+enable_vpc_flow_logs = true
+
+# DynamoDB Table Names
+dynamodb_function_table = "faas-functions"
+dynamodb_execution_table = "faas-executions"
+dynamodb_logs_table = "faas-logs"
+
+# SQS Queue Names
+sqs_task_queue_name = "faas-task-queue"
+sqs_result_queue_name = "faas-result-queue"
+
+# S3 Bucket Configuration
+# Bucket names will be: ${project_name}-${environment}-${suffix}-${account_id}
+# Example: faas-platform-dev-code-123456789012
+
+# Amplify Configuration
+amplify_repository_url = ""  # GitHub repository URL
+amplify_access_token = ""    # GitHub personal access token
+
+# EC2 Compute Configuration (Optional)
+enable_compute_instance = false  # Set to true for standalone management instance
+compute_instance_type = "t3.medium"
+ec2_key_name = ""  # EC2 key pair name for SSH access (optional)
+
+# Auto Scaling Configuration
+enable_worker_asg = true  # Enable worker ASG for FaaS processing
+worker_instance_type = "t3.medium"
+worker_desired_capacity = 2
+worker_min_size = 1
+worker_max_size = 10
+worker_target_cpu = 70  # Target CPU percentage for scaling
+
+# Common Tags
+tags = {
+  Team    = "Platform"
+  Purpose = "FaaS"
+}

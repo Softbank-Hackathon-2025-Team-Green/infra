@@ -1,9 +1,0 @@
-variable "private_subnet_id" {}
-variable "security_group_id" {}
-variable "ami_id" {}
-variable "instance_type" {}
-variable "desired_capacity" {}
-variable "max_size" {}
-variable "min_size" {}
-variable "iam_instance_profile" {}
-variable "server_private_ip" {}

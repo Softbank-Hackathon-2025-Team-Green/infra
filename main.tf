@@ -54,7 +54,7 @@ module "k3s_control_plane" {
 
   subnet_id            = module.network.private_subnet_id
   security_group_id    = module.network.security_group_id
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   ami_id               = data.aws_ami.ubuntu.id
   iam_instance_profile = module.ssm.instance_profile_name
 }
@@ -65,7 +65,7 @@ module "k3s_worker_asg" {
   private_subnet_id    = module.network.private_subnet_id
   security_group_id    = module.network.security_group_id
   ami_id               = data.aws_ami.ubuntu.id
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   desired_capacity     = 1
   min_size             = 1
   max_size             = 4

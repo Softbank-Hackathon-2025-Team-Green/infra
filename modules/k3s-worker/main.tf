@@ -32,6 +32,21 @@ resource "aws_autoscaling_group" "worker_asg" {
     id      = aws_launch_template.worker.id
     version = "$Latest"
   }
+
+  # Launch Template 변경 시 기존 인스턴스를 롤링으로 교체
+  instance_refresh {
+    strategy = "Rolling"
+
+    preferences {
+      # 전체 인스턴스 중 최소 90%는 항상 Healthy 유지
+      min_healthy_percentage = 90
+      # 새 인스턴스가 워커로 붙고 k3s join될 시간을 여유 있게 줌(초)
+      instance_warmup = 300
+    }
+
+    # Launch Template 변경 시에만 Instance Refresh 트리거
+    triggers = ["launch_template"]
+  }
 }
 
 resource "aws_autoscaling_policy" "cpu_target" {

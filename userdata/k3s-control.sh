@@ -7,13 +7,6 @@ apt-get install -y awscli curl ca-certificates || true
 
 aws ssm put-parameter --name "/k3s/cluster-status" --value "initializing" --type String --overwrite --region ap-northeast-2
 
-# # --- SSM Agent (안 깔려 있으면) ---
-# if ! systemctl is-active --quiet amazon-ssm-agent; then
-#   yum install -y amazon-ssm-agent || true
-#   systemctl enable amazon-ssm-agent || true
-#   systemctl start amazon-ssm-agent || true
-# fi
-
 # --- k3s 서버 설치 ---
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --cluster-init" sh -
 

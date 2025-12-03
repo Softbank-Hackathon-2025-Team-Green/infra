@@ -53,16 +53,4 @@ aws ssm put-parameter \
 
 echo "k3s token stored to SSM Parameter Store"
 
-TOKEN_IMDS=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-PRIVATE_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN_IMDS" http://169.254.169.254/latest/meta-data/local-ipv4)
-
-aws ssm put-parameter \
-  --region "ap-northeast-2" \
-  --name "/k3s/control-plane-ip" \
-  --type "String" \
-  --value "${PRIVATE_IP}" \
-  --overwrite
-
-echo "k3s control plane private IP (${PRIVATE_IP}) stored to SSM Parameter Store"
-
 aws ssm put-parameter --name "/k3s/cluster-status" --value "ready" --type String --overwrite --region ap-northeast-2

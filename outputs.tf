@@ -252,11 +252,6 @@ output "cognito_user_pool_domain" {
   value       = module.cognito.user_pool_domain
 }
 
-output "cognito_identity_pool_id" {
-  description = "ID of the Cognito Identity Pool"
-  value       = module.cognito.identity_pool_id
-}
-
 output "cognito_hosted_ui_url" {
   description = "URL for Cognito Hosted UI"
   value       = "https://${module.cognito.user_pool_domain}.auth.${var.aws_region}.amazoncognito.com"

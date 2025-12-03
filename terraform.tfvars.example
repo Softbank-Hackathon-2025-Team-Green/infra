@@ -45,7 +45,6 @@ google_client_secret = ""  # Google OAuth Client Secret (required if enable_goog
 # Cognito Security Settings
 cognito_mfa_configuration = "OPTIONAL"  # Options: OFF, ON, OPTIONAL
 cognito_deletion_protection = false
-allow_unauthenticated_identities = false
 
 # EC2 Compute Configuration (Optional)
 enable_compute_instance = false  # Set to true for standalone management instance

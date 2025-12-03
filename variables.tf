@@ -375,12 +375,6 @@ variable "cognito_deletion_protection" {
   default     = false
 }
 
-variable "allow_unauthenticated_identities" {
-  description = "Allow unauthenticated identities in Cognito identity pool"
-  type        = bool
-  default     = false
-}
-
 # ============================================
 # Common Tags
 # ============================================

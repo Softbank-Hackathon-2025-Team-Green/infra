@@ -387,17 +387,16 @@ module "codebuild" {
 module "cognito" {
   source = "./modules/cognito"
 
-  project_name                     = var.project_name
-  environment                      = var.environment
-  domain_suffix                    = var.cognito_domain_suffix != "" ? var.cognito_domain_suffix : "${var.project_name}-${var.environment}"
-  callback_urls                    = var.cognito_callback_urls
-  logout_urls                      = var.cognito_logout_urls
-  enable_google_provider           = var.enable_google_provider
-  google_client_id                 = var.google_client_id
-  google_client_secret             = var.google_client_secret
-  mfa_configuration                = var.cognito_mfa_configuration
-  deletion_protection              = var.cognito_deletion_protection
-  allow_unauthenticated_identities = var.allow_unauthenticated_identities
+  project_name           = var.project_name
+  environment            = var.environment
+  domain_suffix          = var.cognito_domain_suffix != "" ? var.cognito_domain_suffix : "${var.project_name}-${var.environment}"
+  callback_urls          = var.cognito_callback_urls
+  logout_urls            = var.cognito_logout_urls
+  enable_google_provider = var.enable_google_provider
+  google_client_id       = var.google_client_id
+  google_client_secret   = var.google_client_secret
+  mfa_configuration      = var.cognito_mfa_configuration
+  deletion_protection    = var.cognito_deletion_protection
 
   tags = var.tags
 }
@@ -428,7 +427,6 @@ module "amplify" {
     NEXT_PUBLIC_S3_BUCKET                = module.s3_production.bucket_id
     NEXT_PUBLIC_USER_POOL_ID             = module.cognito.user_pool_id
     NEXT_PUBLIC_USER_POOL_CLIENT_ID      = module.cognito.user_pool_client_id
-    NEXT_PUBLIC_IDENTITY_POOL_ID         = module.cognito.identity_pool_id
     OPENAI_API_KEY                       = var.amplify_openai_api_key
   }
 

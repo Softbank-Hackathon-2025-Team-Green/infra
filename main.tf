@@ -92,6 +92,13 @@ module "k3s_worker_sg" {
       protocol    = "-1"
       cidr_blocks = [var.vpc_cidr]
       description = "Allow all traffic from within the VPC"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow HTTP from anywhere"
     }
   ]
 

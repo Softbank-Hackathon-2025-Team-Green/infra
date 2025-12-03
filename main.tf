@@ -490,9 +490,9 @@ module "k3s_worker" {
   max_size               = var.worker_max_size
   target_cpu_utilization = var.worker_target_cpu
   root_volume_size       = 30
-  server_private_ip      = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : "" # This might be used by the asg module itself, but not for the template
+  server_private_ip      = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
   user_data = templatefile("${path.module}/userdata/k3s-worker.sh.tpl", {
-    server_ip = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
+    server_private_ip = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
   })
 
   tags = var.tags

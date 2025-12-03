@@ -47,3 +47,9 @@ resource "aws_lb_listener" "main" {
     target_group_arn = aws_lb_target_group.main.arn
   }
 }
+
+resource "aws_autoscaling_attachment" "asg_attachment" {
+  count                  = var.autoscaling_group_name != null ? 1 : 0
+  autoscaling_group_name = var.autoscaling_group_name
+  lb_target_group_arn    = aws_lb_target_group.main.arn
+}

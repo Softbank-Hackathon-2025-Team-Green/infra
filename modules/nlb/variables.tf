@@ -24,6 +24,12 @@ variable "enable_cross_zone_load_balancing" {
   default     = true
 }
 
+variable "autoscaling_group_name" {
+  description = "Auto Scaling Group name to attach to target group"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags to apply"
   type        = map(string)

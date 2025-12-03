@@ -440,10 +440,11 @@ module "amplify" {
 module "nlb" {
   source = "./modules/nlb"
 
-  project_name = var.project_name
-  environment  = var.environment
-  vpc_id       = module.vpc.vpc_id
-  subnet_ids   = [module.vpc.public_subnet_id]
+  project_name           = var.project_name
+  environment            = var.environment
+  vpc_id                 = module.vpc.vpc_id
+  subnet_ids             = [module.vpc.public_subnet_id]
+  autoscaling_group_name = var.enable_worker_asg ? module.k3s_worker[0].autoscaling_group_name : null
 
   tags = var.tags
 }
@@ -490,7 +491,7 @@ module "k3s_worker" {
   target_cpu_utilization = var.worker_target_cpu
   root_volume_size       = 30
   server_private_ip      = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : "" # This might be used by the asg module itself, but not for the template
-  user_data              = templatefile("${path.module}/userdata/k3s-worker.sh.tpl", {
+  user_data = templatefile("${path.module}/userdata/k3s-worker.sh.tpl", {
     server_ip = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
   })
 

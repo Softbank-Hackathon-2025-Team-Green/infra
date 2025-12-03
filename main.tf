@@ -425,8 +425,6 @@ module "amplify" {
     NEXT_PUBLIC_DYNAMODB_WORKSPACE_TABLE    = module.dynamodb_workspaces.table_name
     NEXT_PUBLIC_DYNAMODB_TABLE              = module.dynamodb_functions.table_name
     NEXT_PUBLIC_S3_BUCKET                   = module.s3_production.bucket_id
-    NEXT_PUBLIC_USER_POOL_ID                = module.cognito.user_pool_id
-    NEXT_PUBLIC_USER_POOL_CLIENT_ID         = module.cognito.user_pool_client_id
     NEXT_PUBLIC_OPENAI_API_KEY              = var.amplify_openai_api_key
     NEXT_PUBLIC_COGNITO_USER_POOL_ID        = module.cognito.user_pool_id
     NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID = module.cognito.user_pool_client_id

@@ -30,7 +30,7 @@ while true; do
 done
 
 
-SERVER_IP="${server_private_ip}"
+SERVER_IP="${server_ip}"
 SERVER_URL="https://${SERVER_IP}:6443"
 
 TOKEN=$(aws ssm get-parameter \

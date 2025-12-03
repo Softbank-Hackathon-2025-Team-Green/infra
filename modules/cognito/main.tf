@@ -145,4 +145,15 @@ resource "aws_cognito_identity_provider" "google" {
     name     = "name"
     picture  = "picture"
   }
+
+  lifecycle {
+    ignore_changes = [
+      provider_details["attributes_url"],
+      provider_details["attributes_url_add_attributes"],
+      provider_details["authorize_url"],
+      provider_details["oidc_issuer"],
+      provider_details["token_request_method"],
+      provider_details["token_url"],
+    ]
+  }
 }

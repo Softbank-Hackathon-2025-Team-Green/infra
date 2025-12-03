@@ -428,6 +428,7 @@ module "amplify" {
     NEXT_PUBLIC_OPENAI_API_KEY              = var.amplify_openai_api_key
     NEXT_PUBLIC_COGNITO_USER_POOL_ID        = module.cognito.user_pool_id
     NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID = module.cognito.user_pool_client_id
+    NEXT_PUBLIC_COGNITO_DOMAIN              = module.cognito.user_pool_domain
   }
 
   tags = var.tags

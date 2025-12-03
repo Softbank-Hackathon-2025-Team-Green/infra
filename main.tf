@@ -421,7 +421,7 @@ module "amplify" {
 
   environment_variables = {
     NEXT_PUBLIC_AWS_REGION               = var.aws_region
-    NEXT_PUBLIC_API_ENDPOINT             = ""
+    NEXT_PUBLIC_API_ENDPOINT             = var.amplify_api_endpoint
     NEXT_PUBLIC_DYNAMODB_WORKSPACE_TABLE = module.dynamodb_workspaces.table_name
     NEXT_PUBLIC_DYNAMODB_TABLE           = module.dynamodb_functions.table_name
     NEXT_PUBLIC_S3_BUCKET                = module.s3_production.bucket_id

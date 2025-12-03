@@ -234,7 +234,7 @@ variable "amplify_build_spec" {
 variable "amplify_api_endpoint" {
   description = "API endpoint for Amplify app"
   type        = string
-  default     = ""
+  default     = "empty"
 }
 
 variable "amplify_dynamodb_workspace_table" {

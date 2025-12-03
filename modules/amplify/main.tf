@@ -7,7 +7,7 @@ resource "aws_amplify_app" "main" {
   access_token = var.access_token
 
   iam_service_role_arn = var.service_role_arn != "" ? var.service_role_arn : null
-  compute_role_arn = var.compute_role_arn != "" ? var.compute_role_arn : null
+  compute_role_arn     = var.compute_role_arn != "" ? var.compute_role_arn : null
 
   platform = var.platform
 
@@ -17,7 +17,7 @@ resource "aws_amplify_app" "main" {
       phases:
         preBuild:
           commands:
-            - npm ci --cache .npm --prefer-offline
+            - npm ci --cache .npm --prefer-offline --legacy-peer-deps
         build:
           commands:
             - npm run build
@@ -58,7 +58,7 @@ resource "aws_amplify_branch" "master" {
 
   app_id      = aws_amplify_app.main[0].id
   branch_name = var.branch_name
-  framework = var.framework
+  framework   = var.framework
 
   enable_auto_build = true
 
@@ -70,7 +70,7 @@ resource "aws_amplify_branch" "develop" {
 
   app_id      = aws_amplify_app.main[0].id
   branch_name = var.dev_branch_name
-  framework = var.framework
+  framework   = var.framework
 
   enable_auto_build = true
 

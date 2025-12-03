@@ -32,6 +32,21 @@ sqs_result_queue_name = "faas-result-queue"
 amplify_repository_url = ""  # GitHub repository URL
 amplify_access_token = ""    # GitHub personal access token
 
+# Cognito Configuration
+cognito_domain_suffix = ""  # Leave empty to auto-generate: ${project_name}-${environment}
+cognito_callback_urls = ["http://localhost:3000/", "https://your-app-domain.com/"]
+cognito_logout_urls = ["http://localhost:3000/", "https://your-app-domain.com/"]
+
+# Google OAuth Provider (Optional)
+enable_google_provider = false  # Set to true to enable Google authentication
+google_client_id = ""  # Google OAuth Client ID (required if enable_google_provider is true)
+google_client_secret = ""  # Google OAuth Client Secret (required if enable_google_provider is true)
+
+# Cognito Security Settings
+cognito_mfa_configuration = "OPTIONAL"  # Options: OFF, ON, OPTIONAL
+cognito_deletion_protection = false
+allow_unauthenticated_identities = false
+
 # EC2 Compute Configuration (Optional)
 enable_compute_instance = false  # Set to true for standalone management instance
 compute_instance_type = "t3.medium"

@@ -230,6 +230,39 @@ output "k3s_worker_asg_arn" {
 }
 
 # ============================================
+# Cognito Outputs
+# ============================================
+output "cognito_user_pool_id" {
+  description = "ID of the Cognito User Pool"
+  value       = module.cognito.user_pool_id
+}
+
+output "cognito_user_pool_arn" {
+  description = "ARN of the Cognito User Pool"
+  value       = module.cognito.user_pool_arn
+}
+
+output "cognito_user_pool_client_id" {
+  description = "ID of the Cognito User Pool Client"
+  value       = module.cognito.user_pool_client_id
+}
+
+output "cognito_user_pool_domain" {
+  description = "Cognito User Pool Domain"
+  value       = module.cognito.user_pool_domain
+}
+
+output "cognito_identity_pool_id" {
+  description = "ID of the Cognito Identity Pool"
+  value       = module.cognito.identity_pool_id
+}
+
+output "cognito_hosted_ui_url" {
+  description = "URL for Cognito Hosted UI"
+  value       = "https://${module.cognito.user_pool_domain}.auth.${var.aws_region}.amazoncognito.com"
+}
+
+# ============================================
 # General Information
 # ============================================
 output "project_name" {

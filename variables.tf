@@ -146,13 +146,13 @@ variable "sqs_result_queue_name" {
 variable "sqs_message_retention_seconds" {
   description = "Message retention period in seconds"
   type        = number
-  default     = 1209600  # 14 days
+  default     = 1209600 # 14 days
 }
 
 variable "sqs_visibility_timeout_seconds" {
   description = "Visibility timeout in seconds"
   type        = number
-  default     = 300  # 5 minutes
+  default     = 300 # 5 minutes
 }
 
 # ============================================
@@ -320,6 +320,65 @@ variable "worker_target_cpu" {
   description = "Target CPU utilization for worker scaling"
   type        = number
   default     = 70
+}
+
+# ============================================
+# Cognito Configuration
+# ============================================
+variable "cognito_domain_suffix" {
+  description = "Suffix for Cognito domain (must be globally unique)"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_callback_urls" {
+  description = "List of callback URLs for Cognito OAuth"
+  type        = list(string)
+  default     = ["http://localhost:3000/"]
+}
+
+variable "cognito_logout_urls" {
+  description = "List of logout URLs for Cognito OAuth"
+  type        = list(string)
+  default     = ["http://localhost:3000/"]
+}
+
+variable "enable_google_provider" {
+  description = "Enable Google as identity provider for Cognito"
+  type        = bool
+  default     = false
+}
+
+variable "google_client_id" {
+  description = "Google OAuth Client ID"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "google_client_secret" {
+  description = "Google OAuth Client Secret"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "cognito_mfa_configuration" {
+  description = "MFA configuration for Cognito (OFF, ON, OPTIONAL)"
+  type        = string
+  default     = "OPTIONAL"
+}
+
+variable "cognito_deletion_protection" {
+  description = "Enable deletion protection for Cognito user pool"
+  type        = bool
+  default     = false
+}
+
+variable "allow_unauthenticated_identities" {
+  description = "Allow unauthenticated identities in Cognito identity pool"
+  type        = bool
+  default     = false
 }
 
 # ============================================

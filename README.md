@@ -8,6 +8,7 @@ The infrastructure includes:
 
 - **VPC**: Single AZ deployment with public/private subnets, NAT Gateway, Internet Gateway, and VPC Flow Logs
 - **Amplify**: Frontend hosting with CI/CD from GitHub repository
+- **Cognito**: User authentication with Google OAuth provider support
 - **S3**: Three buckets (production code, development code, and reserved)
 - **CodeBuild**: Docker image building and ECR push automation
 - **DynamoDB**: Three tables for function metadata, execution tracking, and logs
@@ -43,6 +44,12 @@ The infrastructure includes:
    # Add GitHub repository URL and token for Amplify
    amplify_repository_url = "https://github.com/your-org/your-repo"
    amplify_access_token = "ghp_your_token_here"
+
+   # Configure Cognito with Google OAuth
+   enable_google_provider = true
+   google_client_id = "your-google-client-id.apps.googleusercontent.com"
+   google_client_secret = "your-google-client-secret"
+   cognito_callback_urls = ["https://your-app.com/callback"]
    ```
 
 3. Initialize Terraform:
@@ -82,6 +89,7 @@ infra/
     ├── ssm/                # Systems Manager Parameter Store
     ├── codebuild/          # CodeBuild Projects
     ├── amplify/            # AWS Amplify
+    ├── cognito/            # Cognito User Pool & Identity Pool
     └── nlb/                # Network Load Balancer
 
 ## Resource Naming Convention
@@ -122,6 +130,38 @@ All buckets have:
 - Public access blocked
 - Lifecycle policies (transition to Glacier after 90 days)
 
+## Cognito Authentication
+
+### User Pool
+- Email-based authentication
+- Password policy with strong requirements
+- Email verification
+- MFA support (configurable: OFF, ON, OPTIONAL)
+- Advanced security mode (AUDIT)
+
+### Google OAuth Integration
+To enable Google authentication:
+
+1. **Create Google OAuth 2.0 credentials** at [Google Cloud Console](https://console.cloud.google.com/):
+   - Create OAuth 2.0 Client ID for Web application
+   - Add authorized redirect URI: `https://{cognito-domain}.auth.{region}.amazoncognito.com/oauth2/idpresponse`
+
+2. **Configure in terraform.tfvars**:
+   ```hcl
+   enable_google_provider = true
+   google_client_id = "your-client-id.apps.googleusercontent.com"
+   google_client_secret = "your-client-secret"
+   cognito_callback_urls = ["https://your-app.com/callback"]
+   cognito_logout_urls = ["https://your-app.com/logout"]
+   ```
+
+3. **Integration**: Cognito credentials are automatically exported to Amplify environment variables:
+   - `NEXT_PUBLIC_USER_POOL_ID`
+   - `NEXT_PUBLIC_USER_POOL_CLIENT_ID`
+   - `NEXT_PUBLIC_IDENTITY_POOL_ID`
+
+See [modules/cognito/README.md](./modules/cognito/README.md) for detailed documentation.
+
 ## SQS Queues
 
 1. **Task Queue**: For incoming function execution requests
@@ -149,6 +189,8 @@ The configuration outputs important information including:
 - IAM role ARNs
 - NLB DNS name
 - Amplify app domain
+- Cognito User Pool ID, Client ID, and Identity Pool ID
+- Cognito Hosted UI URL
 
 ## Cost Optimization
 

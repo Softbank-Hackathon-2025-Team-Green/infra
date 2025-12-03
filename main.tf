@@ -66,7 +66,7 @@ module "k3s_control_plane_sg" {
       cidr_blocks = ["0.0.0.0/0"]
       description = "Allow SSH from anywhere"
     },
-     {
+    {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
@@ -86,7 +86,7 @@ module "k3s_worker_sg" {
   description = "Security group for K3s worker nodes"
 
   ingress_rules = [
-     {
+    {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
@@ -382,30 +382,54 @@ module "codebuild" {
 }
 
 # ============================================
+# Cognito (User Pool & Identity Pool)
+# ============================================
+module "cognito" {
+  source = "./modules/cognito"
+
+  project_name                     = var.project_name
+  environment                      = var.environment
+  domain_suffix                    = var.cognito_domain_suffix != "" ? var.cognito_domain_suffix : "${var.project_name}-${var.environment}"
+  callback_urls                    = var.cognito_callback_urls
+  logout_urls                      = var.cognito_logout_urls
+  enable_google_provider           = var.enable_google_provider
+  google_client_id                 = var.google_client_id
+  google_client_secret             = var.google_client_secret
+  mfa_configuration                = var.cognito_mfa_configuration
+  deletion_protection              = var.cognito_deletion_protection
+  allow_unauthenticated_identities = var.allow_unauthenticated_identities
+
+  tags = var.tags
+}
+
+# ============================================
 # Amplify (Conditional)
 # ============================================
 module "amplify" {
   source = "./modules/amplify"
 
-  project_name   = var.project_name
-  environment    = var.environment
-  repository_url = var.amplify_repository_url
-  access_token   = var.amplify_access_token
-  branch_name    = var.amplify_branch_name
-  dev_branch_name = var.amplify_dev_branch_name
-  build_spec     = var.amplify_build_spec
+  project_name     = var.project_name
+  environment      = var.environment
+  repository_url   = var.amplify_repository_url
+  access_token     = var.amplify_access_token
+  branch_name      = var.amplify_branch_name
+  dev_branch_name  = var.amplify_dev_branch_name
+  build_spec       = var.amplify_build_spec
   service_role_arn = module.iam.amplify_service_role_arn
   compute_role_arn = module.iam.amplify_ssr_role_arn
-  platform       = "WEB_COMPUTE"
-  framework      = "Next.js - SSR"
+  platform         = "WEB_COMPUTE"
+  framework        = "Next.js - SSR"
 
   environment_variables = {
-    NEXT_PUBLIC_AWS_REGION        = var.aws_region
-    NEXT_PUBLIC_API_ENDPOINT      = ""
-    NEXT_PUBLIC_DYNAMODB_WORKSPACE_TABLE      = module.dynamodb_workspaces.table_name
-    NEXT_PUBLIC_DYNAMODB_TABLE    = module.dynamodb_functions.table_name
-    NEXT_PUBLIC_S3_BUCKET         = module.s3_production.bucket_id
-    OPENAI_API_KEY                = var.amplify_openai_api_key
+    NEXT_PUBLIC_AWS_REGION               = var.aws_region
+    NEXT_PUBLIC_API_ENDPOINT             = ""
+    NEXT_PUBLIC_DYNAMODB_WORKSPACE_TABLE = module.dynamodb_workspaces.table_name
+    NEXT_PUBLIC_DYNAMODB_TABLE           = module.dynamodb_functions.table_name
+    NEXT_PUBLIC_S3_BUCKET                = module.s3_production.bucket_id
+    NEXT_PUBLIC_USER_POOL_ID             = module.cognito.user_pool_id
+    NEXT_PUBLIC_USER_POOL_CLIENT_ID      = module.cognito.user_pool_client_id
+    NEXT_PUBLIC_IDENTITY_POOL_ID         = module.cognito.identity_pool_id
+    OPENAI_API_KEY                       = var.amplify_openai_api_key
   }
 
   tags = var.tags
@@ -432,17 +456,17 @@ module "k3s_control_plane" {
   count  = var.enable_compute_instance ? 1 : 0
   source = "./modules/ec2"
 
-  project_name          = var.project_name
-  environment           = var.environment
-  vpc_id                = module.vpc.vpc_id
-  subnet_id             = module.vpc.public_subnet_id
-  security_group_ids    = [module.k3s_control_plane_sg.security_group_id]
-  instance_type         = var.compute_instance_type
-  iam_instance_profile  = module.iam.ec2_instance_profile_name
-  key_name              = var.ec2_key_name
-  enable_public_ip      = true
-  root_volume_size      = 30
-  user_data             = file("${path.module}/userdata/k3s-control.sh")
+  project_name         = var.project_name
+  environment          = var.environment
+  vpc_id               = module.vpc.vpc_id
+  subnet_id            = module.vpc.public_subnet_id
+  security_group_ids   = [module.k3s_control_plane_sg.security_group_id]
+  instance_type        = var.compute_instance_type
+  iam_instance_profile = module.iam.ec2_instance_profile_name
+  key_name             = var.ec2_key_name
+  enable_public_ip     = true
+  root_volume_size     = 30
+  user_data            = file("${path.module}/userdata/k3s-control.sh")
 
   tags = var.tags
 }
@@ -454,20 +478,20 @@ module "k3s_worker" {
   count  = var.enable_worker_asg ? 1 : 0
   source = "./modules/asg"
 
-  project_name          = var.project_name
-  environment           = var.environment
-  vpc_id                = module.vpc.vpc_id
-  subnet_ids            = [module.vpc.private_subnet_id]
-  security_group_ids    = [module.k3s_worker_sg.security_group_id]
-  instance_type         = var.worker_instance_type
-  iam_instance_profile  = module.iam.ec2_instance_profile_name
-  desired_capacity      = var.worker_desired_capacity
-  min_size              = var.worker_min_size
-  max_size              = var.worker_max_size
+  project_name           = var.project_name
+  environment            = var.environment
+  vpc_id                 = module.vpc.vpc_id
+  subnet_ids             = [module.vpc.private_subnet_id]
+  security_group_ids     = [module.k3s_worker_sg.security_group_id]
+  instance_type          = var.worker_instance_type
+  iam_instance_profile   = module.iam.ec2_instance_profile_name
+  desired_capacity       = var.worker_desired_capacity
+  min_size               = var.worker_min_size
+  max_size               = var.worker_max_size
   target_cpu_utilization = var.worker_target_cpu
-  root_volume_size      = 30
-  server_private_ip     = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
-  user_data             = templatefile("${path.module}/userdata/k3s-worker.sh.tpl", {
+  root_volume_size       = 30
+  server_private_ip      = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
+  user_data = templatefile("${path.module}/userdata/k3s-worker.sh.tpl", {
     server_private_ip = var.enable_compute_instance ? module.k3s_control_plane[0].private_ip : ""
   })
 

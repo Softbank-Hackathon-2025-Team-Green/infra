@@ -52,9 +52,10 @@ curl -sfL https://get.k3s.io | \
 echo "k3s agent joined successfully."
 
 echo installing gVisor...
+
 #1. 최신 버전 URL 설정
 ARCH=$(uname -m)
-URL="https://storage.googleapis.com/gvisor/releases/release/latest/${ARCH}"
+URL="https://storage.googleapis.com/gvisor/releases/release/latest/$${ARCH}"
 
 # 2. runsc 다운로드 (curl -L -O 옵션 사용)
 curl -L -O ${URL}/runsc

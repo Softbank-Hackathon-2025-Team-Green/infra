@@ -46,3 +46,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "codebuild_source_location" {
+  description = "CodeBuild source location (GitHub repo URL)."
+  type        = string
+  default     = "https://github.com/Softbank-Hackathon-2025-Team-Green/codebuild-test"
+}
+
+variable "image_tag" {
+  description = "Default Docker image tag for built images (overridable at build time)"
+  type        = string
+  default     = "latest"
+}

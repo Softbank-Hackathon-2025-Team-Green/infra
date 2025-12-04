@@ -1,8 +1,9 @@
 resource "aws_codebuild_project" "main" {
-  name          = "${var.project_name}-${var.environment}-build"
-  description   = "CodeBuild project for ${var.project_name}"
-  service_role  = var.codebuild_role_arn
-  build_timeout = var.timeout_minutes
+  name           = "${var.project_name}-${var.environment}-build"
+  description    = "CodeBuild project for ${var.project_name}"
+  service_role   = var.codebuild_role_arn
+  build_timeout  = var.timeout_minutes
+  source_version = "main"
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -10,30 +11,37 @@ resource "aws_codebuild_project" "main" {
 
   environment {
     compute_type                = var.compute_type
-    image                      = var.image
-    type                       = "LINUX_CONTAINER"
+    image                       = var.image
+    type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode            = true
+    privileged_mode             = true
 
     environment_variable {
-      name  = "ECR_REPOSITORY_URL"
-      value = var.ecr_repository_url
-    }
-
-    environment_variable {
-      name  = "AWS_DEFAULT_REGION"
-      value = data.aws_region.current.name
+      name  = "AWS_ACCOUNT_ID"
+      value = data.aws_caller_identity.current.account_id
     }
 
     environment_variable {
       name  = "PROJECT_NAME"
       value = var.project_name
     }
+
+    environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = var.region
+    }
+
+    environment_variable {
+      name  = "IMAGE_TAG"
+      value = var.image_tag
+    }
   }
 
   source {
-    type            = "NO_SOURCE"
-    buildspec       = file("${path.module}/buildspec.yml")
+    type            = "GITHUB"
+    location        = var.codebuild_source_location
+    git_clone_depth = 1
+    buildspec       = "buildspec.yml"
   }
 
   logs_config {

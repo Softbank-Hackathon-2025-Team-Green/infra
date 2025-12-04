@@ -35,6 +35,23 @@ resource "aws_codebuild_project" "main" {
       name  = "IMAGE_TAG"
       value = var.image_tag
     }
+
+    environment_variable {
+      name  = "USER_CODE_BUCKET"
+      value = var.s3_bucket_name
+    }
+
+    environment_variable {
+      name  = "SQS_URL"
+      value = var.sqs_queue_url
+    }
+
+    environment_variable {
+      name  = "ECR_REPO_NAME"
+      value = var.ecr_repository_name
+    }
+
+
   }
 
   source {

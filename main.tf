@@ -380,14 +380,16 @@ module "ssm" {
 module "codebuild" {
   source = "./modules/codebuild"
 
-  project_name       = var.project_name
-  environment        = var.environment
-  codebuild_role_arn = module.iam.codebuild_role_arn
-  s3_bucket_name     = module.s3_production.bucket_id
-  ecr_repository_url = module.ecr.repository_url
-  compute_type       = var.codebuild_compute_type
-  image              = var.codebuild_image
-  timeout_minutes    = var.codebuild_timeout_minutes
+  project_name        = var.project_name
+  environment         = var.environment
+  codebuild_role_arn  = module.iam.codebuild_role_arn
+  s3_bucket_name      = module.s3_production.bucket_id
+  ecr_repository_url  = module.ecr.repository_url
+  ecr_repository_name = module.ecr.repository_name
+  sqs_queue_url       = module.sqs_task.queue_url
+  compute_type        = var.codebuild_compute_type
+  image               = var.codebuild_image
+  timeout_minutes     = var.codebuild_timeout_minutes
 
   tags = var.tags
 }

@@ -58,3 +58,15 @@ variable "image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "sqs_queue_url" {
+  description = "SQS task queue URL"
+  type        = string
+  default     = ""
+}
+
+variable "ecr_repository_name" {
+  description = "ECR repository name"
+  type        = string
+  default     = ""
+}

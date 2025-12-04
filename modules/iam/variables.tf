@@ -53,3 +53,9 @@ variable "cognito_user_pool_arn" {
   type        = string
   default     = ""
 }
+
+variable "codebuild_project_arn" {
+  description = "ARN of the CodeBuild project (for SSR role permissions)"
+  type        = string
+  default     = ""
+}

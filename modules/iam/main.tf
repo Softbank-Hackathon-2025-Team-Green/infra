@@ -328,6 +328,28 @@ resource "aws_iam_policy" "amplify_ssr" {
         ]
         Resource = var.cognito_user_pool_arn
       }
+      ,
+      {
+        Sid    = "CodeBuildAccess"
+        Effect = "Allow"
+        Action = [
+          "codebuild:StartBuild",
+          "codebuild:BatchGetBuilds",
+          "codebuild:StopBuild"
+        ]
+        Resource = var.codebuild_project_arn
+      }
+      ,
+      {
+        Sid    = "LogsAccess"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/amplify/*"
+      }
     ]
   })
 

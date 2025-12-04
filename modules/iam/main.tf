@@ -120,6 +120,13 @@ resource "aws_iam_role_policy" "codebuild" {
           "ecr:CompleteLayerUpload"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage"
+        ]
+        Resource = var.sqs_queue_arn
       }
     ]
   })

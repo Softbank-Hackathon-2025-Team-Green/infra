@@ -59,3 +59,8 @@ variable "codebuild_project_arn" {
   type        = string
   default     = ""
 }
+
+variable "sqs_queue_arn" {
+  description = "ARN of the SQS queue for sending messages"
+  type        = string
+}

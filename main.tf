@@ -312,6 +312,7 @@ module "iam" {
 
   cognito_user_pool_arn = module.cognito.user_pool_arn
   codebuild_project_arn = module.codebuild.project_arn
+  sqs_queue_arn         = module.sqs_task.queue_arn
 
   tags = var.tags
 }

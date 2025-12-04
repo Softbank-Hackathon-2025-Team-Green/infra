@@ -443,7 +443,7 @@ module "amplify" {
     NEXT_PUBLIC_REDIRECT_SIGN_IN                = var.cognito_callback_urls[0]
     NEXT_PUBLIC_REDIRECT_SIGN_OUT               = var.cognito_logout_urls[0]
     NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_SECRET = module.cognito.user_pool_client_secret
-    NEXT_PUBLIC_CODEBUILD_PROJECT_ARN           = module.codebuild.project_arn
+    NEXT_PUBLIC_CODEBUILD_PROJECT_NAME          = module.codebuild.project_name
 
   }
 

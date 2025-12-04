@@ -50,7 +50,7 @@ variable "tags" {
 variable "codebuild_source_location" {
   description = "CodeBuild source location (GitHub repo URL)."
   type        = string
-  default     = "https://github.com/Softbank-Hackathon-2025-Team-Green/codebuild-test"
+  default     = "https://github.com/Softbank-Hackathon-2025-Team-Green/codebuild-repo"
 }
 
 variable "image_tag" {

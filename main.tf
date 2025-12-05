@@ -391,6 +391,7 @@ module "codebuild" {
   compute_type              = var.codebuild_compute_type
   image                     = var.codebuild_image
   timeout_minutes           = var.codebuild_timeout_minutes
+  amplify_domain            = module.amplify.default_domain
 
   tags = var.tags
 }

@@ -47,18 +47,6 @@ variable "tags" {
   default     = {}
 }
 
-variable "codebuild_source_location" {
-  description = "CodeBuild source location (GitHub repo URL)."
-  type        = string
-  default     = "https://github.com/Softbank-Hackathon-2025-Team-Green/codebuild-repo"
-}
-
-variable "image_tag" {
-  description = "Default Docker image tag for built images (overridable at build time)"
-  type        = string
-  default     = "latest"
-}
-
 variable "sqs_queue_url" {
   description = "SQS task queue URL"
   type        = string
@@ -69,4 +57,13 @@ variable "ecr_repository_name" {
   description = "ECR repository name"
   type        = string
   default     = ""
+}
+
+variable "amplify_domain" {
+  description = "Amplify domain url"
+}
+
+variable "codebuild_source_location" {
+  description = "CodeBuild source location (e.g. GitHub repo URL)"
+  type        = string
 }

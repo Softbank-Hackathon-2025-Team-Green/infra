@@ -32,11 +32,6 @@ resource "aws_codebuild_project" "main" {
     }
 
     environment_variable {
-      name  = "IMAGE_TAG"
-      value = var.image_tag
-    }
-
-    environment_variable {
       name  = "USER_CODE_BUCKET"
       value = var.s3_bucket_name
     }
@@ -49,6 +44,11 @@ resource "aws_codebuild_project" "main" {
     environment_variable {
       name  = "ECR_REPO_NAME"
       value = var.ecr_repository_name
+    }
+
+    environment_variable {
+      name  = "AMPLIFY_DEPLOY_FAILED_URL"
+      value = "https://${var.amplify_domain}/api/deploy/failed"
     }
 
 

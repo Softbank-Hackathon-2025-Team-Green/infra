@@ -137,11 +137,11 @@ resource "aws_route_table_association" "private" {
 
 # VPC Flow Logs
 resource "aws_flow_log" "main" {
-  count                = var.enable_flow_logs ? 1 : 0
-  iam_role_arn         = aws_iam_role.flow_logs[0].arn
-  log_destination      = aws_cloudwatch_log_group.flow_logs[0].arn
-  traffic_type         = "ALL"
-  vpc_id               = aws_vpc.main.id
+  count                    = var.enable_flow_logs ? 1 : 0
+  iam_role_arn             = aws_iam_role.flow_logs[0].arn
+  log_destination          = aws_cloudwatch_log_group.flow_logs[0].arn
+  traffic_type             = "ALL"
+  vpc_id                   = aws_vpc.main.id
   max_aggregation_interval = 60
 
   tags = merge(
@@ -201,4 +201,96 @@ resource "aws_iam_role_policy" "flow_logs" {
       }
     ]
   })
+}
+
+
+
+# Multi-az
+
+# ===========================
+# Additional (Multi-AZ) Subnets
+# ===========================
+
+# 추가 Public Subnet (단일 값)
+resource "aws_subnet" "public_additional" {
+  count                   = var.additional_availability_zone == "" ? 0 : 1
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.additional_public_subnet_cidr
+  availability_zone       = var.additional_availability_zone
+  map_public_ip_on_launch = true
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-public-subnet-additional"
+      Tier = "Public"
+    }
+  )
+}
+
+# 추가 Private Subnet (단일 값)
+resource "aws_subnet" "private_additional" {
+  count             = var.additional_availability_zone == "" ? 0 : 1
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.additional_private_subnet_cidr
+  availability_zone = var.additional_availability_zone
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-private-subnet-additional"
+      Tier = "Private"
+    }
+  )
+}
+
+# 추가 Public Route Table
+resource "aws_route_table" "public_additional" {
+  count = var.additional_availability_zone == "" ? 0 : 1
+
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = merge(
+    var.tags,
+    { Name = "${var.project_name}-${var.environment}-public-rt-additional" }
+  )
+}
+
+resource "aws_route_table_association" "public_additional_assoc" {
+  count = var.additional_availability_zone == "" ? 0 : 1
+
+  subnet_id      = aws_subnet.public_additional[0].id
+  route_table_id = aws_route_table.public_additional[0].id
+}
+
+# 추가 Private Route Table
+resource "aws_route_table" "private_additional" {
+  count = var.additional_availability_zone == "" ? 0 : 1
+
+  vpc_id = aws_vpc.main.id
+
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.main[0].id
+    }
+  }
+
+  tags = merge(
+    var.tags,
+    { Name = "${var.project_name}-${var.environment}-private-rt-additional" }
+  )
+}
+
+resource "aws_route_table_association" "private_additional_assoc" {
+  count = var.additional_availability_zone == "" ? 0 : 1
+
+  subnet_id      = aws_subnet.private_additional[0].id
+  route_table_id = aws_route_table.private_additional[0].id
 }

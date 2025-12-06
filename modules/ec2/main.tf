@@ -24,6 +24,10 @@ resource "aws_instance" "main" {
   associate_public_ip_address = var.enable_public_ip
   user_data                   = var.user_data != "" ? var.user_data : null
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   root_block_device {
     volume_type           = "gp3"
     volume_size           = var.root_volume_size

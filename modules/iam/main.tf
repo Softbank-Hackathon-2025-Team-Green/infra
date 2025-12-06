@@ -360,9 +360,13 @@ resource "aws_iam_policy" "amplify_ssr" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:GetLogEvents"
         ]
-        Resource = "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/amplify/*"
+        Resource = [
+          "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/amplify/*",
+          "arn:aws:logs:${var.aws_region}:${var.account_id}:log-group:/aws/codebuild/*"
+        ]
       }
     ]
   })

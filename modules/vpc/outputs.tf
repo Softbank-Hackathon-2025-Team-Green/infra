@@ -9,18 +9,28 @@ output "vpc_cidr" {
 }
 
 output "public_subnet_id" {
-  description = "ID of the public subnet"
-  value       = aws_subnet.public.id
+  description = "ID of the first public subnet"
+  value       = element([for s in aws_subnet.public : s.id], 0)
+}
+
+output "public_subnet_ids" {
+  description = "IDs of all public subnets"
+  value       = [for s in aws_subnet.public : s.id]
 }
 
 output "private_subnet_id" {
-  description = "ID of the private subnet"
-  value       = aws_subnet.private.id
+  description = "ID of the first private subnet"
+  value       = element([for s in aws_subnet.private : s.id], 0)
+}
+
+output "private_subnet_ids" {
+  description = "IDs of all private subnets"
+  value       = [for s in aws_subnet.private : s.id]
 }
 
 output "nat_gateway_id" {
   description = "ID of the NAT Gateway"
-  value       = var.enable_nat_gateway ? aws_nat_gateway.main[0].id : null
+  value       = try(aws_nat_gateway.main[0].id, null)
 }
 
 output "internet_gateway_id" {

@@ -15,9 +15,9 @@ module "vpc" {
   project_name             = var.project_name
   environment              = var.environment
   vpc_cidr                 = var.vpc_cidr
-  availability_zone        = var.availability_zone
-  public_subnet_cidr       = var.public_subnet_cidr
-  private_subnet_cidr      = var.private_subnet_cidr
+  availability_zones       = var.availability_zones
+  public_subnet_cidrs      = var.public_subnet_cidrs
+  private_subnet_cidrs     = var.private_subnet_cidrs
   enable_nat_gateway       = var.enable_nat_gateway
   enable_flow_logs         = var.enable_vpc_flow_logs
   flow_logs_retention_days = var.flow_logs_retention_days
@@ -474,7 +474,7 @@ module "nlb" {
   project_name           = var.project_name
   environment            = var.environment
   vpc_id                 = module.vpc.vpc_id
-  subnet_ids             = [module.vpc.public_subnet_id]
+  subnet_ids             = module.vpc.public_subnet_ids
   autoscaling_group_name = var.enable_worker_asg ? module.k3s_worker[0].autoscaling_group_name : null
 
   tags = var.tags
@@ -512,7 +512,7 @@ module "k3s_worker" {
   project_name           = var.project_name
   environment            = var.environment
   vpc_id                 = module.vpc.vpc_id
-  subnet_ids             = [module.vpc.private_subnet_id]
+  subnet_ids             = module.vpc.private_subnet_ids
   security_group_ids     = [module.k3s_worker_sg.security_group_id]
   instance_type          = var.worker_instance_type
   iam_instance_profile   = module.iam.ec2_instance_profile_name

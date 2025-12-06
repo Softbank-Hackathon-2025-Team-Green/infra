@@ -13,19 +13,19 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "availability_zone" {
-  description = "Single availability zone for resources"
-  type        = string
+variable "availability_zones" {
+  description = "List of availability zones for public/private subnets"
+  type        = list(string)
 }
 
-variable "public_subnet_cidr" {
-  description = "CIDR block for public subnet"
-  type        = string
+variable "public_subnet_cidrs" {
+  description = "List of CIDR blocks for public subnets (one per AZ)"
+  type        = list(string)
 }
 
-variable "private_subnet_cidr" {
-  description = "CIDR block for private subnet"
-  type        = string
+variable "private_subnet_cidrs" {
+  description = "List of CIDR blocks for private subnets (one per AZ)"
+  type        = list(string)
 }
 
 variable "enable_nat_gateway" {

@@ -22,9 +22,9 @@ module "vpc" {
   enable_flow_logs         = var.enable_vpc_flow_logs
   flow_logs_retention_days = var.flow_logs_retention_days
 
-  additional_availability_zones   = var.additional_availability_zones
-  additional_public_subnet_cidrs  = var.additional_public_subnet_cidrs
-  additional_private_subnet_cidrs = var.additional_private_subnet_cidrs
+  additional_availability_zone   = var.additional_availability_zone
+  additional_public_subnet_cidr  = var.additional_public_subnet_cidr
+  additional_private_subnet_cidr = var.additional_private_subnet_cidr
 
   tags = var.tags
 }

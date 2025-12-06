@@ -211,52 +211,34 @@ resource "aws_iam_role_policy" "flow_logs" {
 # Additional (Multi-AZ) Subnets
 # ===========================
 
-locals {
-  additional_public_subnets = {
-    for idx, az in var.additional_availability_zones :
-    idx => {
-      az   = az
-      cidr = var.additional_public_subnet_cidrs[idx]
-    }
-  }
-
-  additional_private_subnets = {
-    for idx, az in var.additional_availability_zones :
-    idx => {
-      az   = az
-      cidr = var.additional_private_subnet_cidrs[idx]
-    }
-  }
-}
-
-# 추가 Public Subnet들 (기존 aws_subnet.public 은 그대로)
+# 추가 Public Subnet (단일 값)
 resource "aws_subnet" "public_additional" {
-  for_each                = local.additional_public_subnets
+  count                   = var.additional_availability_zone == "" ? 0 : 1
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = each.value.cidr
-  availability_zone       = each.value.az
+  cidr_block              = var.additional_public_subnet_cidr
+  availability_zone       = var.additional_availability_zone
   map_public_ip_on_launch = true
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-public-subnet-${each.key}"
+      Name = "${var.project_name}-${var.environment}-public-subnet-additional"
       Tier = "Public"
     }
   )
 }
 
-# 추가 Private Subnet들 (기존 aws_subnet.private 은 그대로)
+# 추가 Private Subnet (단일 값)
 resource "aws_subnet" "private_additional" {
-  for_each          = local.additional_private_subnets
+  count             = var.additional_availability_zone == "" ? 0 : 1
   vpc_id            = aws_vpc.main.id
-  cidr_block        = each.value.cidr
-  availability_zone = each.value.az
+  cidr_block        = var.additional_private_subnet_cidr
+  availability_zone = var.additional_availability_zone
 
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-private-subnet-${each.key}"
+      Name = "${var.project_name}-${var.environment}-private-subnet-additional"
       Tier = "Private"
     }
   )
@@ -264,7 +246,7 @@ resource "aws_subnet" "private_additional" {
 
 # 추가 Public Route Table
 resource "aws_route_table" "public_additional" {
-  for_each = aws_subnet.public_additional
+  count = var.additional_availability_zone == "" ? 0 : 1
 
   vpc_id = aws_vpc.main.id
 
@@ -275,22 +257,20 @@ resource "aws_route_table" "public_additional" {
 
   tags = merge(
     var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-public-rt-${each.key}"
-    }
+    { Name = "${var.project_name}-${var.environment}-public-rt-additional" }
   )
 }
 
-resource "aws_route_table_association" "public_additional" {
-  for_each = aws_subnet.public_additional
+resource "aws_route_table_association" "public_additional_assoc" {
+  count = var.additional_availability_zone == "" ? 0 : 1
 
-  subnet_id      = each.value.id
-  route_table_id = aws_route_table.public_additional[each.key].id
+  subnet_id      = aws_subnet.public_additional[0].id
+  route_table_id = aws_route_table.public_additional[0].id
 }
 
-# 추가 Private Route Table (기존 NAT를 공유)
+# 추가 Private Route Table
 resource "aws_route_table" "private_additional" {
-  for_each = aws_subnet.private_additional
+  count = var.additional_availability_zone == "" ? 0 : 1
 
   vpc_id = aws_vpc.main.id
 
@@ -304,15 +284,13 @@ resource "aws_route_table" "private_additional" {
 
   tags = merge(
     var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-private-rt-${each.key}"
-    }
+    { Name = "${var.project_name}-${var.environment}-private-rt-additional" }
   )
 }
 
-resource "aws_route_table_association" "private_additional" {
-  for_each = aws_subnet.private_additional
+resource "aws_route_table_association" "private_additional_assoc" {
+  count = var.additional_availability_zone == "" ? 0 : 1
 
-  subnet_id      = each.value.id
-  route_table_id = aws_route_table.private_additional[each.key].id
+  subnet_id      = aws_subnet.private_additional[0].id
+  route_table_id = aws_route_table.private_additional[0].id
 }

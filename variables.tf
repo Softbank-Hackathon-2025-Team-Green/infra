@@ -404,20 +404,20 @@ variable "tags" {
 }
 
 # Multi-az
-variable "additional_availability_zones" {
-  type        = list(string)
-  default     = ["ap-northeast-2c"]
-  description = "Extra AZs for worker nodes (empty = single AZ)"
+variable "additional_availability_zone" {
+  type        = string
+  default     = "ap-northeast-2c"
+  description = "Extra AZ for worker nodes (empty = single AZ)"
 }
 
-variable "additional_public_subnet_cidrs" {
-  type        = list(string)
-  default     = ["10.0.0.0/24"]
-  description = "Public subnet CIDRs for extra AZs"
+variable "additional_public_subnet_cidr" {
+  type        = string
+  default     = "10.0.0.0/24"
+  description = "Public subnet CIDR for extra AZs"
 }
 
-variable "additional_private_subnet_cidrs" {
-  type        = list(string)
-  default     = ["10.0.11.0/24"]
-  description = "Private subnet CIDRs for extra AZs"
+variable "additional_private_subnet_cidr" {
+  type        = string
+  default     = "10.0.11.0/24"
+  description = "Private subnet CIDR for extra AZs"
 }

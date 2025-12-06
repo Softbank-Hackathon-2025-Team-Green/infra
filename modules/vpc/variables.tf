@@ -53,20 +53,20 @@ variable "tags" {
 }
 
 # Multi-AZ
-variable "additional_availability_zones" {
-  description = "Extra AZs to create additional public/private subnets in"
-  type        = list(string)
+variable "additional_availability_zone" {
+  description = "Extra AZ to create additional public/private subnets in"
+  type        = string
   default     = []
 }
 
-variable "additional_public_subnet_cidrs" {
-  description = "CIDR blocks for additional public subnets (one per extra AZ)"
-  type        = list(string)
+variable "additional_public_subnet_cidr" {
+  description = "CIDR block for additional public subnets (one per extra AZ)"
+  type        = string
   default     = []
 }
 
-variable "additional_private_subnet_cidrs" {
-  description = "CIDR blocks for additional private subnets (one per extra AZ)"
-  type        = list(string)
+variable "additional_private_subnet_cidr" {
+  description = "CIDR block for additional private subnets (one per extra AZ)"
+  type        = string
   default     = []
 }

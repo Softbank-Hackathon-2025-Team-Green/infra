@@ -268,6 +268,13 @@ variable "amplify_openai_api_key" {
   default     = ""
 }
 
+variable "amplify_slack_webhook"{
+  description = "Slack webhook URL for Amplify notifications"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # ============================================
 # EC2 Compute Configuration
 # ============================================

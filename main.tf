@@ -457,6 +457,7 @@ module "amplify" {
     NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_SECRET = module.cognito.user_pool_client_secret
     # NEXT_PUBLIC_CODEBUILD_PROJECT_NAME          = module.codebuild.project_name
     NEXT_PUBLIC_CODEBUILD_PROJECT_NAME = local.codebuild_project_name
+    NEXT_PUBLIC_AMPLIFY_SLACK_WEBHOOK   = var.amplify_slack_webhook
 
   }
 

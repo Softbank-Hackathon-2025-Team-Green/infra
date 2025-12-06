@@ -51,8 +51,8 @@ variable "public_subnet_cidrs" {
   description = "List of public subnet CIDR blocks (one per AZ)"
   type        = list(string)
   default = [
-    "10.0.0.0/24",
     "10.0.1.0/24",
+    "10.0.0.0/24",
   ]
 }
 
@@ -277,7 +277,7 @@ variable "amplify_openai_api_key" {
   default     = ""
 }
 
-variable "amplify_slack_webhook"{
+variable "amplify_slack_webhook" {
   description = "Slack webhook URL for Amplify notifications"
   type        = string
   sensitive   = true

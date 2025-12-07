@@ -466,7 +466,7 @@ module "amplify" {
     NEXT_PUBLIC_FUNCTION_CALL_BASEURL  = var.amplify_function_call_baseurl
     NEXT_PUBLIC_ATHENA_DATABASE        = var.athena_database
     NEXT_PUBLIC_ATHENA_OUTPUT_LOCATION = var.athena_output_location
-
+    NEXT_PUBLIC_ATHENA_TABLE_NAME      = var.athena_table_name
   }
 
   tags = var.tags

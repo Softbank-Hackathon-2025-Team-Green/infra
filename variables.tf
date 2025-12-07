@@ -293,6 +293,12 @@ variable "athena_output_location" {
   default     = ""
 }
 
+variable "athena_table_name" {
+  description = "Name of the Athena table"
+  type        = string
+  default     = ""
+}
+
 variable "log_bucket_arn" {
   description = "ARN of the S3 log bucket"
   type        = string

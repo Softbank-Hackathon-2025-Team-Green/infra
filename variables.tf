@@ -281,6 +281,18 @@ variable "amplify_function_call_baseurl" {
   default     = ""
 }
 
+variable "athena_database"{
+  description = "Name of the Athena database"
+  type        = string
+  default     = ""
+}
+
+variable "athena_output_location" {
+  description = "S3 output location for Athena query results"
+  type        = string
+  default     = ""
+}
+
 # ============================================
 # EC2 Compute Configuration
 # ============================================

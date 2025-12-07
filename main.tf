@@ -463,6 +463,8 @@ module "amplify" {
     NEXT_PUBLIC_CODEBUILD_PROJECT_NAME = local.codebuild_project_name
     NEXT_PUBLIC_AMPLIFY_SLACK_WEBHOOK  = var.amplify_slack_webhook
     NEXT_PUBLIC_FUNCTION_CALL_BASEURL  = var.amplify_function_call_baseurl
+    NEXT_PUBLIC_ATHENA_DATABASE        = var.athena_database
+    NEXT_PUBLIC_ATHENA_OUTPUT_LOCATION = var.athena_output_location
 
   }
 

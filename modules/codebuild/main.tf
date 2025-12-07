@@ -61,6 +61,11 @@ resource "aws_codebuild_project" "main" {
     buildspec       = "buildspec.yml"
   }
 
+  cache {
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_CUSTOM_CACHE"]
+  }
+
   logs_config {
     cloudwatch_logs {
       group_name = "/aws/codebuild/${var.project_name}-${var.environment}"

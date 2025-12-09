@@ -23,40 +23,40 @@
 UI & Build Plane은 유저 코드 수집 → 빌드 → 이미지 생성 → 배포 트리거까지의 모든 과정을 처리한다.
 Amplify, CodeBuild, S3, DynamoDB, SQS, ECR 등이 유기적으로 연결된다.
 
-### **💠 Cognito – 사용자 인증**
+### **🔸 Cognito – 사용자 인증**
 
 * 플랫폼 UI 접속 및 코드 업로드를 위한 인증/인가 제공
 * Amplify Frontend와 직접 통합되어 안전한 사용자 인증 구조 구성
 
-### **💠 AWS Amplify – UI Hosting & API Gateway**
+### **🔸 AWS Amplify – UI Hosting & API Gateway**
 
 * 사용자 웹 에디터, 대시보드 등 UI 레이어 호스팅
 * Cognito 인증과 통합되어 안전한 빌드 요청 처리
 * 사용자 코드 제출 시 CodeBuild를 호출하는 엔트리포인트 역할
 
-### **💠 S3 – 유저 코드 및 로그 저장소**
+### **🔸 S3 – 유저 코드 및 로그 저장소**
 
 * CodeBuild가 빌드할 소스 코드를 저장
 * FluentBit이 수집한 로그를 저장하여 Athena와 연동 가능
 
-### **💠 AWS CodeBuild – Buildpacks 기반 이미지 빌더**
+### **🔸 AWS CodeBuild – Buildpacks 기반 이미지 빌더**
 
 * Cloud Native Buildpacks(pack CLI)을 사용해 **Dockerfile 없이** 유저 코드를 자동 분석·빌드
 * 캐싱 최적화로 빌드 시간 약 75% 감소
 * 빌드 성공 시 ECR에 이미지 push
 * 빌드 결과를 SQS에 전달하여 Knative Service 생성 흐름을 트리거함
 
-### **💠 Amazon SQS – Function Deployment Trigger**
+### **🔸 Amazon SQS – Function Deployment Trigger**
 
 * CodeBuild가 생성한 메타데이터 메시지를 전달
 * Runtime Plane의 Queue Polling Agent가 메시지를 읽어 **Knative Service 생성/갱신** 수행
 
-### **💠 Amazon ECR – Function 이미지 저장소**
+### **🔸 Amazon ECR – Function 이미지 저장소**
 
 * Buildpacks로 만들어진 유저 Function 이미지를 저장
 * Worker Node가 여기서 pull하여 컨테이너로 실행됨
 
-### **💠 Athena – 로그 분석**
+### **🔸 Athena – 로그 분석**
 
 * FluentBit → S3로 전송된 실행 로그를 Athena로 분석 가능
 * 함수 모니터링 및 사용량 분석에 활용
@@ -72,12 +72,12 @@ Function Runtime Plane은 실제 FaaS 실행 환경을 담당하며,
 
 구조는 **Control Plane (Single AZ)** + **Worker Node Auto Scaling Group (Multi-AZ)** 형태이다.
 
-### **💠 VPC 구성**
+### **🔸 VPC 구성**
 
 * Public subnet: NLB, NAT, Control Plane
 * Private subnet: Worker Node
 
-### **💠 Control Plane (Single-AZ, EC2 k3s Server)**
+### **🔸 Control Plane (Single-AZ, EC2 k3s Server)**
 
 * 경량 Kubernetes(k3s)의 Control Plane 역할
 * Knative System 컴포넌트 일부를 포함 (controller, autoscaler 등)
@@ -85,7 +85,7 @@ Function Runtime Plane은 실제 FaaS 실행 환경을 담당하며,
 * 단일 AZ에 배치해 안정적·일관된 CP 스토리지 보장
 
 
-### **💠 Worker Node (Multi-AZ, Auto Scaling Group)**
+### **🔸 Worker Node (Multi-AZ, Auto Scaling Group)**
 
 각 노드는 다음과 같은 컴포넌트를 포함한다:
 
@@ -117,7 +117,7 @@ Function Runtime Plane은 실제 FaaS 실행 환경을 담당하며,
 
 ## 🛡️ High Availability, Security, Operational Excellence
 
-### **💠 High Availability (고가용성)**
+### **🔸 High Availability (고가용성)**
 
 | 구성 요소                | HA 전략                                                   |
 | -------------------- | ------------------------------------------------------- |
@@ -132,7 +132,7 @@ Control Plane을 Single-AZ로 둔 이유:
 * 대신 Worker Node HA를 보장하여 **실행 환경 가용성**을 확보하는 전략 채택
 
 
-### **💠 Security**
+### **🔸 Security**
 
 * **SG 계층 분리**: CP / Worker / ALB / BuildPlane 간 최소 권한 통신만 허용
 * **Private Subnet 실행 환경**: 모든 Function Pods는 Private subnet에서만 동작
@@ -142,7 +142,7 @@ Control Plane을 Single-AZ로 둔 이유:
 * **gVisor Sandbox**를 통한 Function 간 격리
 
 
-### **💠 Operational Excellence**
+### **🔸 Operational Excellence**
 
 * IaC(Terraform Modules) 기반의 완전 자동화된 인프라
 * CodeBuild 캐싱 최적화 → 빌드 시간 75% 절감
